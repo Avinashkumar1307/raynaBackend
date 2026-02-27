@@ -54,9 +54,10 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(500).json({ error: "Internal server error" });
 });
 
-// ── Start server ───────────────────────────────────────────
-app.listen(config.server.port, () => {
-  console.log(`
+// ── Start server (skip in Vercel serverless environment) ───
+if (!process.env.VERCEL) {
+  app.listen(config.server.port, () => {
+    console.log(`
   ╔════════════════════════════════════════╗
   ║   🌍 Rayna Tours Chatbot — Running     ║
   ║                                        ║
@@ -68,7 +69,8 @@ app.listen(config.server.port, () => {
   ║                                        ║
   ║   POST http://localhost:${config.server.port}/api/chat  ║
   ╚════════════════════════════════════════╝
-  `);
-});
+    `);
+  });
+}
 
 export default app;
