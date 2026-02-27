@@ -1,0 +1,125 @@
+RAYNA TOURS BOOKING MANAGEMENT SYSTEM
+
+My Bookings Page
+================
+Page URL: https://www.raynatours.com/bookings?filters={"filters":{"status":"all","state":"past"}}
+
+URL Parameters:
+- Replace "state" with: "upcoming" or "past"  
+- Replace "status" with: "all", "confirmed", "cancelled", "completed", or "booking_in_process"
+
+Booking Tabs & Filters
+=====================
+1. Upcoming: Shows future bookings
+2. Past: Shows previous bookings
+
+Status Filter Options:
+- All: Shows all bookings regardless of status
+- Confirmed: Shows confirmed bookings only
+- Cancelled: Shows cancelled bookings only  
+- Completed: Shows completed bookings only
+- Booking In Process: Shows bookings currently being processed
+
+Search Functionality:
+- Search bar available to find bookings by tour name
+
+Booking Card Information
+=======================
+Each booking card displays:
+- Tour image
+- Tour name
+- Booking date
+- Location/destination
+- Transfer type (if applicable)
+- Guest count/number of people
+- Booking status badge (confirmed/cancelled/completed/etc.)
+
+Available Actions on Booking Cards
+=================================
+
+Get Help Action:
+- Button available on every booking card
+- Opens support/contact options for that specific booking
+- Use this for any booking-related issues or questions
+
+Download Ticket Action:
+- Available for confirmed bookings
+- Downloads the booking ticket/voucher
+- Contains all booking details and QR codes
+
+Rate Experience (Past Bookings):
+- "How was your experience?" option
+- Allows customers to leave star ratings
+- Only available for completed past bookings
+
+Driver Details:
+- Viewable directly on booking card
+- Shows for confirmed bookings that include transfers
+- Contains driver name, contact, and vehicle information
+
+Downloadable Documents
+=====================
+Available downloads from booking cards:
+1. Voucher - Booking confirmation document
+2. Ticket - Entry ticket with QR codes
+3. Invoice - Payment receipt and booking details  
+4. Cancellation Confirmation - If booking was cancelled
+
+Cancellation & Refund Process
+============================
+Cancellation Policy:
+- Cancelled bookings are automatically refunded to the Rayna Wallet
+- Wallet URL: https://www.raynatours.com/wallet
+- Refunds are processed instantly to wallet balance
+
+Using Wallet Balance:
+- Wallet balance can be used to book any new tour or activity
+- No restrictions on which tours can be booked with wallet credit
+- Balance never expires
+
+Pickup Requests & Changes
+========================
+For any pickup request changes (time, date, or location):
+- Go to "My Bookings" page
+- Find the relevant booking
+- Use "Get Help" button for assistance
+
+Date Change Policy & Process
+===========================
+Important: Rayna Tours does not support direct date changes on existing bookings.
+
+Recommended Fast Process:
+1. Cancel your current booking (refund goes to wallet instantly)
+2. Rebook the same tour with your preferred new date
+3. Use your wallet balance to pay for the new booking
+4. This is the fastest way to change your booking date
+
+Alternative Support Option:
+- If you prefer manual assistance with date changes
+- Click "Get Help" on your booking card
+- This connects you directly to our support team
+- Support team can provide personalized assistance
+
+Booking Status Explanations
+===========================
+- Confirmed: Booking is confirmed and guaranteed
+- Cancelled: Booking has been cancelled, refund processed to wallet
+- Completed: Tour/activity has been completed
+- Booking In Process: Payment received, booking being processed
+- All: Shows bookings in any status
+
+Customer Support Access
+======================
+Multiple ways to get help:
+1. "Get Help" button on individual booking cards
+2. General customer support via website
+3. Phone support for urgent matters
+4. Email support for detailed inquiries
+
+Best Practices for Customers
+============================
+- Always check booking status before travel date
+- Download tickets/vouchers before your tour
+- Keep driver details handy for transfer bookings  
+- Use wallet balance for quick rebookings
+- Contact support early if you need assistance
