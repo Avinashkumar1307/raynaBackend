@@ -10,7 +10,7 @@ const app = express();
 
 // ── Middleware ─────────────────────────────────────────────
 app.use(cors({
-  origin: config.server.corsOrigin,
+  origin: "*",
   methods: ["GET", "POST", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
