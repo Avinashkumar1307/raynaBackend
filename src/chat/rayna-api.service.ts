@@ -186,11 +186,42 @@ export class RaynaApiService {
         };
       }
 
-      // ── GET TOUR CARDS FOR CAROUSEL DISPLAY ──
+            // ── GET TOUR CARDS FOR CAROUSEL DISPLAY ──
       case "get_tour_cards": {
         // This tool returns its own JSON string, so we need to parse and return it
         const result = await getTourCards(input);
         return JSON.parse(result);
+      }
+
+      // ── CURRENCY CONVERSION ──
+      case "convert_currency": {
+        const { amount, fromCurrency, toCurrency } = input;
+        
+        // Use free exchange rate API (exchangerate-api.com)
+        const response = await axios.get(
+          `https://api.exchangerate-api.com/v4/latest/${fromCurrency}`
+        );
+        
+        const rates = response.data.rates;
+        const exchangeRate = rates[toCurrency as string];
+        
+        if (!exchangeRate) {
+          throw new Error(`Currency ${toCurrency} not supported`);
+        }
+        
+        const convertedAmount = (amount as number) * exchangeRate;
+        
+        return {
+          success: true,
+          data: {
+            originalAmount: amount,
+            fromCurrency,
+            toCurrency,
+            exchangeRate: parseFloat(exchangeRate.toFixed(4)),
+            convertedAmount: parseFloat(convertedAmount.toFixed(2)),
+            timestamp: new Date().toISOString()
+          }
+        };
       }
 
       // ── Milestone 2 (not active yet) ──

@@ -8,6 +8,7 @@ import { getProductDetailsTool } from "./get-product-details.tool";
 import { getVisasTool } from "./get-visas.tool";
 import { getPopularVisasTool } from "./get-popular-visas.tool";
 import { getTourCardsSchema, getTourCards } from "./get-tour-cards.tool";
+import { convertCurrencyTool } from "./convert-currency.tool";
 
 // ─────────────────────────────────────────────────────────
 // ALL_TOOLS — Claude sees this list and decides what to call
@@ -30,12 +31,15 @@ export const ALL_TOOLS = [
   getVisasTool,
   getPopularVisasTool,
   
-  // Tour Cards & Carousel Display
+    // Tour Cards & Carousel Display
   {
     name: getTourCardsSchema.name,
     description: getTourCardsSchema.description,
     input_schema: getTourCardsSchema.input_schema,
   },
+  
+  // Currency Conversion
+  convertCurrencyTool,
 
   // Milestone 2 — Profile Management (coming soon)
   // getUserProfileTool,
@@ -57,7 +61,8 @@ export type ToolName =
   | "get_product_details"
   | "get_visas"
   | "get_popular_visas"
-  | "get_tour_cards";
+  | "get_tour_cards"
+  | "convert_currency";
   // | "get_user_profile"        // M2
   // | "update_user_profile"     // M2
   // | "get_user_bookings"       // M3
