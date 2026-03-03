@@ -4,6 +4,9 @@ import { createLLMProvider, LLMProvider } from "./llm.provider";
 import { ALL_TOOLS, ToolName } from "./tools";
 import { SYSTEM_PROMPT } from "./prompts/system.prompt";
 import { RAGService } from "../rag/rag.service";
+import { Conversation } from "../models/conversation.model";
+import { Message } from "../models/message.model";
+import { isDBConnected } from "../config/database";
 
 // ─────────────────────────────────────────────────────────
 // ChatService — The core orchestrator
@@ -35,12 +38,37 @@ export class ChatService {
     userId?: string
   ): Promise<{ reply: string; sessionId: string; tourCarousel?: any; metadata?: any }> {
 
-    // 1. Save user message to session
+    // 1. Save user message to in-memory session
     this.sessionService.addMessage(
       sessionId,
       { role: "user", content: userMessage },
       userId
     );
+
+    // 1b. Persist user message + upsert conversation to MongoDB
+    if (isDBConnected()) {
+      // Upsert conversation (create if new, update timestamp if exists)
+      Conversation.findOneAndUpdate(
+        { session_id: sessionId },
+        {
+          $setOnInsert: {
+            session_id: sessionId,
+            // Use first 60 chars of user's first message as the conversation title
+            title: userMessage.slice(0, 60),
+            created_at: new Date(),
+          },
+          $inc: { message_count: 1 },
+          $set: { updated_at: new Date() },
+        },
+        { upsert: true, new: true }
+      ).catch((err) => console.error("[DB] Failed to upsert conversation:", err));
+
+      Message.create({
+        session_id: sessionId,
+        role: "user",
+        content: userMessage,
+      }).catch((err) => console.error("[DB] Failed to save user message:", err));
+    }
 
     // 2. Get context for LLM (last N messages)
     const messages = this.sessionService.getContext(sessionId);
@@ -79,11 +107,28 @@ export class ChatService {
 
             // ── LLM is done — return the final text ────────────────
       if (!this.llm.isToolUse(response)) {
-        // Save final assistant reply to session
+        // Save final assistant reply to in-memory session
         this.sessionService.addMessage(sessionId, {
           role: "assistant",
           content: response.text,
         });
+
+        // Persist assistant reply to MongoDB
+        if (isDBConnected()) {
+          Message.create({
+            session_id: sessionId,
+            role: "assistant",
+            content: response.text,
+            tourCarousel: tourCarousel ?? null,
+          }).catch((err) => console.error("[DB] Failed to save assistant message:", err));
+
+          // Increment message count for the assistant reply
+          Conversation.findOneAndUpdate(
+            { session_id: sessionId },
+            { $inc: { message_count: 1 }, $set: { updated_at: new Date() } }
+          ).catch((err) => console.error("[DB] Failed to update conversation count:", err));
+        }
+
         return {
           reply: response.text,
           sessionId,
@@ -101,7 +146,8 @@ export class ChatService {
         toolCalls.map(async (call) => {
           const result = await this.raynaApi.execute(
             call.name as ToolName,
-            call.input
+            call.input,
+            sessionId
           );
           
           // Check if this was a tour cards tool call

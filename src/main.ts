@@ -2,8 +2,10 @@ import "./config"; // load .env first
 import express from "express";
 import cors from "cors";
 import { config } from "./config";
+import { connectDB } from "./config/database";
 import chatRouter from "./chat/chat.router";
 import ragRouter from "./rag/rag.router";
+import historyRouter from "./history/history.router";
 import { chatRateLimiter } from "./common/rate-limiter";
 
 const app = express();
@@ -18,10 +20,14 @@ app.use(cors({
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
 
+// ── Connect to MongoDB (non-blocking — app runs even without DB) ──
+connectDB();
+
 // ── Routes ─────────────────────────────────────────────────
 // Rate limit only the chat endpoint (not health checks)
 app.use("/api/chat", chatRateLimiter, chatRouter);
-app.use("/api/rag", ragRouter); // RAG endpoints for data management
+app.use("/api/rag", ragRouter);
+app.use("/api/history", historyRouter);
 
 // Root health check
 app.get("/", (_req, res) => {
@@ -31,14 +37,18 @@ app.get("/", (_req, res) => {
     milestone: 1,
     status: "running",
         endpoints: {
-      chat:       "POST /api/chat",
-      history:    "GET  /api/chat/history/:sessionId",
-      clear:      "DELETE /api/chat/session/:sessionId",
-      health:     "GET  /api/chat/health",
-      ragStatus:  "GET  /api/rag/status",
-      ragTest:    "POST /api/rag/test",
-      ragIngest:  "POST /api/rag/ingest",
-      ragSearch:  "POST /api/rag/search",
+      chat:                "POST   /api/chat",
+      clear:               "DELETE /api/chat/session/:sessionId",
+      health:              "GET    /api/chat/health",
+      ragStatus:           "GET    /api/rag/status",
+      ragTest:             "POST   /api/rag/test",
+      ragIngest:           "POST   /api/rag/ingest",
+      ragSearch:           "POST   /api/rag/search",
+      allConversations:    "GET    /api/history",
+      conversationHistory: "GET    /api/history/:sessionId",
+      deleteConversation:  "DELETE /api/history/:sessionId",
+      sessionConversions:  "GET    /api/history/:sessionId/conversions",
+      allConversions:      "GET    /api/history/conversions/all",
     },
   });
 });

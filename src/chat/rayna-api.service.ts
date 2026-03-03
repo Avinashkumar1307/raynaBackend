@@ -3,6 +3,8 @@ import { config } from "../config";
 import type { ToolName } from "./tools";
 import { visaService } from "./visa.service";
 import { getTourCards } from "./tools/get-tour-cards.tool";
+import { Conversion } from "../models/conversion.model";
+import { isDBConnected } from "../config/database";
 
 // ─────────────────────────────────────────────────────────
 // RaynaApiService
@@ -45,9 +47,9 @@ export class RaynaApiService {
   // execute() — called by ChatService for each tool use block
   // Returns: JSON string (Claude reads this as tool result)
   // ─────────────────────────────────────────────────────────
-  async execute(toolName: ToolName, input: Record<string, unknown>): Promise<string> {
+  async execute(toolName: ToolName, input: Record<string, unknown>, sessionId?: string): Promise<string> {
     try {
-      const data = await this.callApi(toolName, input);
+      const data = await this.callApi(toolName, input, sessionId);
       const trimmed = this.trimResponse(data);
       return JSON.stringify({ success: true, data: trimmed });
     } catch (err) {
@@ -100,7 +102,7 @@ export class RaynaApiService {
     return obj;
   }
 
-  private async callApi(toolName: ToolName, input: Record<string, unknown>): Promise<unknown> {
+  private async callApi(toolName: ToolName, input: Record<string, unknown>, sessionId?: string): Promise<unknown> {
     switch (toolName) {
       // ── GET /api/available-cities?productType=tour ──
       case "get_available_cities": {
@@ -196,31 +198,45 @@ export class RaynaApiService {
       // ── CURRENCY CONVERSION ──
       case "convert_currency": {
         const { amount, fromCurrency, toCurrency } = input;
-        
+
         // Use free exchange rate API (exchangerate-api.com)
         const response = await axios.get(
           `https://api.exchangerate-api.com/v4/latest/${fromCurrency}`
         );
-        
+
         const rates = response.data.rates;
         const exchangeRate = rates[toCurrency as string];
-        
+
         if (!exchangeRate) {
           throw new Error(`Currency ${toCurrency} not supported`);
         }
-        
+
         const convertedAmount = (amount as number) * exchangeRate;
-        
+        const rateRounded = parseFloat(exchangeRate.toFixed(4));
+        const convertedRounded = parseFloat(convertedAmount.toFixed(2));
+
+        // Persist to MongoDB if DB is connected
+        if (isDBConnected() && sessionId) {
+          Conversion.create({
+            session_id: sessionId,
+            amount: amount as number,
+            fromCurrency: (fromCurrency as string).toUpperCase(),
+            toCurrency: (toCurrency as string).toUpperCase(),
+            convertedAmount: convertedRounded,
+            exchangeRate: rateRounded,
+          }).catch((err) => console.error("[DB] Failed to save conversion:", err));
+        }
+
         return {
           success: true,
           data: {
             originalAmount: amount,
             fromCurrency,
             toCurrency,
-            exchangeRate: parseFloat(exchangeRate.toFixed(4)),
-            convertedAmount: parseFloat(convertedAmount.toFixed(2)),
-            timestamp: new Date().toISOString()
-          }
+            exchangeRate: rateRounded,
+            convertedAmount: convertedRounded,
+            timestamp: new Date().toISOString(),
+          },
         };
       }
 

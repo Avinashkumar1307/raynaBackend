@@ -44,6 +44,10 @@ export const config = {
     maxRequests: parseInt(optional("RATE_LIMIT_MAX_REQUESTS", "20")),
   },
 
+  mongodb: {
+    uri: optional("MONGODB_URI", ""),
+  },
+
   // RAG Configuration
   rag: {
     enabled: optional("RAG_ENABLED", "true") === "true",
