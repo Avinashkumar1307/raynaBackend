@@ -9,10 +9,8 @@ import { config } from "./index";
 // but mongoose caches the connection inside the module).
 // ─────────────────────────────────────────────────────────
 
-let isConnected = false;
-
 export async function connectDB(): Promise<void> {
-  if (isConnected) return;
+  if (mongoose.connection.readyState === 1) return; // already connected
 
   const uri = config.mongodb.uri;
 
@@ -23,9 +21,9 @@ export async function connectDB(): Promise<void> {
 
   try {
     await mongoose.connect(uri, {
-      bufferCommands: false, // fail fast if not connected (good for serverless)
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 5000,
     });
-    isConnected = true;
     console.log("[DB] Connected to MongoDB");
   } catch (err) {
     console.error("[DB] Connection failed:", err);
@@ -34,5 +32,5 @@ export async function connectDB(): Promise<void> {
 }
 
 export function isDBConnected(): boolean {
-  return isConnected && mongoose.connection.readyState === 1;
+  return mongoose.connection.readyState === 1;
 }
