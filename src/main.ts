@@ -20,8 +20,11 @@ app.use(cors({
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// ── Connect to MongoDB (non-blocking — app runs even without DB) ──
-connectDB();
+// ── Connect to MongoDB on every request (required for Vercel serverless cold starts) ──
+app.use(async (_req, _res, next) => {
+  await connectDB();
+  next();
+});
 
 // ── Routes ─────────────────────────────────────────────────
 // Rate limit only the chat endpoint (not health checks)
